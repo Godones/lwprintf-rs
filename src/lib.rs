@@ -1,5 +1,8 @@
+//! LwPRINTF Rust bindings and wrappers.
+//!
 #![no_std]
 #![feature(c_variadic)]
+#![deny(missing_docs)]
 #![allow(
     non_snake_case,
     non_camel_case_types,
@@ -15,13 +18,18 @@ use core::ptr::null_mut;
 
 use bindings::lwprintf_t;
 
+/// Maximum size value for buffers.
 pub const SIZE_MAX: i32 = bindings::SIZE_MAX;
+
+/// Trait for custom output handling.
 pub trait CustomOutPut {
+    /// Output a single character.
     fn putch(ch: i32) -> i32;
 }
 
+/// LwPRINTF object with custom output handler.
 pub struct LwprintfObj<T: CustomOutPut> {
-    pub obj: lwprintf_t,
+    obj: lwprintf_t,
     _phantom: core::marker::PhantomData<T>,
 }
 
@@ -32,6 +40,7 @@ impl<T: CustomOutPut> Default for LwprintfObj<T> {
 }
 
 impl<T: CustomOutPut> LwprintfObj<T> {
+    /// Create a new uninitialized LwPRINTF object.
     pub fn new() -> Self {
         let obj = lwprintf_t {
             out_fn: None,
