@@ -5,8 +5,9 @@ edition = "2024"
 authors = ["chen linfeng <chenlinfeng25@outlook.com>"]
 keywords = ["lwprintf", "printf", "no_std", "embedded", "os"]
 description = "Rust bindings for the lightweight printf library lwprintf."
-
-[dependencies]
+license = "MIT"
+repository = "https://github.com/Godones/lwprintf-rs"
+homepage = "https://github.com/Godones/lwprintf-rs"
 
 
 [build-dependencies]
