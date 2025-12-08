@@ -1,0 +1,4 @@
+[submodule "lwprintf"]
+	path = lwprintf
+	url = https://github.com/MaJerle/lwprintf
+    branch = main
