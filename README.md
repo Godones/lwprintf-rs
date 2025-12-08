@@ -1,12 +1,62 @@
 # lwprintf-rs
-Lightweight printf implementation for Rust, based on lwprintf C library.
+Lightweight printf bindings for Rust, powered by the upstream C library **lwprintf**. Provides `no_std` support and minimal glue to hook custom output sinks from Rust.
 
-## Problems
+## Overview
+- Builds the upstream C source via `cc` and generates bindings via `bindgen` at compile time.
+- Exposes the core C APIs (`lwprintf_printf_ex`, `lwprintf_vprintf_ex`, `lwprintf_snprintf_ex`, `lwprintf_vsnprintf_ex`) plus Rust helpers and macros.
+- Lets you plug in a Rust-defined output sink through the `CustomOutPut` trait and `LwprintfObj` wrapper.
 
-> Rust 编译器无法正确地在两个可变参数函数之间维护 ABI 兼容性,这是为什么?
+## Public API surface (Rust crate)
+- Trait: `CustomOutPut { fn putch(ch: i32) -> i32; }` – implement to handle each output byte/char.
+- Struct: `LwprintfObj<T: CustomOutPut>`
+	- `new()` – create an instance (uninitialized).
+	- `as_mut_ptr()` – get `*mut lwprintf_t` for calling the raw C FFI.
+- Functions (re-exported raw C FFI):
+	- `lwprintf_printf_ex`, `lwprintf_vprintf_ex`
+	- `lwprintf_snprintf_ex`, `lwprintf_vsnprintf_ex`
+- Convenience wrappers (Rust-side varargs pass a `VaList` to the raw APIs):
+	- `lwprintf_vprintf_ex_rust`, `lwprintf_vsnprintf_ex_rust`
+- Macros (default instance = null `lwobj`):
+	- `lwprintf_printf!`, `lwprintf_vprintf!`
+	- `lwprintf_snprintf!`, `lwprintf_vsnprintf!`
+	- `lwprintf_sprintf!`, `lwprintf_sprintf_ex!`
 
-原因在于 ABI 约定和编译器职责：
+## Example usage
+```shell
+cargo run --example print
+```
 
-1. C 的可变参数是“调用者负责”协议：调用者要把每个实参按平台 ABI 约定放到寄存器/栈里；被调方用 va_list 依次取出。
-2. Rust 仅允许在 extern "C" fn(... ) 上声明 C 可变参数，并直接把传入的真实实参按 C ABI 下发给对方。但 Rust 不支持把收到的 “...” 再次展开并转发给另一个可变参数函数，因为编译器无法重建原始的参数布局（哪些在寄存器、哪些在栈、宽度对齐等）。
-3. 包装函数尝试 f(...args) 会制造错误的调用序列，栈/寄存器混乱，接收方解包时得到垃圾或崩溃
+## Quick start
+```rust
+use lwprintf_rs::{CustomOutPut, LwprintfObj};
+
+struct StdOut;
+impl CustomOutPut for StdOut {
+		fn putch(ch: i32) -> i32 { print!("{}", ch as u8 as char); ch }
+}
+
+fn main() {
+		let mut lw = LwprintfObj::<StdOut>::new();
+		lwprintf_rs::lwprintf_init_ex(&mut lw);
+		unsafe {
+				// Call the raw C varargs API using the object pointer
+				lwprintf_rs::lwprintf_printf_ex(
+						lw.as_mut_ptr(),
+						b"Hello %s %d!\n\0".as_ptr() as *const i8,
+						b"world\0".as_ptr() as *const i8,
+						42,
+				);
+		}
+}
+```
+
+## Notes on varargs
+- Rust cannot safely re-forward C varargs; use the raw FFI exports for formatting (`lwprintf_printf_ex` etc.) and pass the pointer from `as_mut_ptr()`.
+- For `va_list`-style calls, prefer `lwprintf_vprintf_ex` / `lwprintf_vsnprintf_ex` or the Rust helpers `lwprintf_vprintf_ex_rust` / `lwprintf_vsnprintf_ex_rust` which forward a `VaList` to C.
+
+## Build
+- The build script compiles `lwprintf.c` and generates bindings on the fly. No pre-generated bindings are checked in.
+- Ensure `clang` and a C toolchain are available for bindgen/cc.
+
+## Why varargs forwarding is tricky
+Rust cannot preserve the original C varargs ABI layout when re-forwarding `...` across Rust functions. A Rust wrapper that takes `...` and then forwards to another `...` function will corrupt the call frame. Always call the raw C varargs functions directly (or use `va_list` variants) once arguments are marshalled.

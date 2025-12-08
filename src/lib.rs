@@ -20,7 +20,6 @@ pub trait CustomOutPut {
     fn putch(ch: i32) -> i32;
 }
 
-#[repr(transparent)]
 pub struct LwprintfObj<T: CustomOutPut> {
     pub obj: lwprintf_t,
     _phantom: core::marker::PhantomData<T>,

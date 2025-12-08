@@ -1,7 +1,10 @@
 [package]
 name = "lwprintf-rs"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
+authors = ["chen linfeng <chenlinfeng25@outlook.com>"]
+keywords = ["lwprintf", "printf", "no_std", "embedded", "os"]
+description = "Rust bindings for the lightweight printf library lwprintf."
 
 [dependencies]
 
