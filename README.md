@@ -58,5 +58,13 @@ fn main() {
 - The build script compiles `lwprintf.c` and generates bindings on the fly. No pre-generated bindings are checked in.
 - Ensure `clang` and a C toolchain are available for bindgen/cc.
 
+### no_std support
+- This crate can be used in `no_std` environments, but requires a musl toolchain. When compiling the lwprintf C code, musl's gcc is needed to set the correct sysroot and handle missing headers.
+- Supported architectures and their corresponding musl toolchains:
+  - loongarch64: loongarch64-linux-musl-gcc
+  - [x86_64-linux-musl-gcc](https://musl.cc/x86_64-linux-musl-cross.tgz)
+  - [riscv64-linux-musl-gcc](https://musl.cc/riscv64-linux-musl-cross.tgz)
+  - [aarch64-linux-musl-gcc](https://musl.cc/aarch64-linux-musl-cross.tgz)
+
 ## Why varargs forwarding is tricky
 Rust cannot preserve the original C varargs ABI layout when re-forwarding `...` across Rust functions. A Rust wrapper that takes `...` and then forwards to another `...` function will corrupt the call frame. Always call the raw C varargs functions directly (or use `va_list` variants) once arguments are marshalled.

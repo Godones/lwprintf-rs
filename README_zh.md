@@ -54,6 +54,16 @@ fn main() {
 - build.rs 会编译 `lwprintf.c` 并即时生成绑定，仓库不提交预生成绑定。
 - 需要可用的 `clang` 与 C 工具链以支持 bindgen 和 cc 编译。
 
+
+### no_std 支持
+- 本 crate 可在 `no_std` 环境中使用, 但需要musl工具链支持。因为在预编译lwprintf的c代码时，需要使用 musl 的 gcc 来正确设置 sysroot以及处理头文件缺失的问题。
+
+- 支持的架构和对应的musl工具链如下：
+  - loongarch64: loongarch64-linux-musl-gcc
+  - [x86_64-linux-musl-gcc](https://musl.cc/x86_64-linux-musl-cross.tgz)
+  - [riscv64-linux-musl-gcc](https://musl.cc/riscv64-linux-musl-cross.tgz)
+  - [aarch64-linux-musl-gcc](https://musl.cc/aarch64-linux-musl-cross.tgz)
+
 ## 为什么不能在 Rust 里转发 C 可变参数
 - C varargs 由调用者按平台 ABI 把参数放入寄存器/栈，callee 用 `va_list` 取出。
 - Rust 允许在 `extern "C" fn(... )` 上声明 varargs，但无法重建并再次转发原始布局；包装函数尝试再调用另一 varargs 函数会导致栈/寄存器错位，输出异常或崩溃。
