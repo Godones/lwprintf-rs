@@ -19,7 +19,7 @@ use core::ptr::null_mut;
 use bindings::lwprintf_t;
 
 /// Maximum size value for buffers.
-pub const SIZE_MAX: i32 = bindings::SIZE_MAX;
+pub const SIZE_MAX: i32 = bindings::SIZE_MAX as _;
 
 /// Trait for custom output handling.
 pub trait CustomOutPut {
