@@ -1,4 +1,4 @@
 [submodule "lwprintf"]
 	path = lwprintf
-	url = https://github.com/MaJerle/lwprintf
-    branch = main
+	url = https://github.com/Godones/lwprintf
+    branch = patch-fix-float

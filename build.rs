@@ -1,8 +1,36 @@
 use std::{env, path::PathBuf, process::Command};
 
+use cc::Build;
+
 fn main() {
     let sysroot = build_lib();
     generates_bindings_to_rust(sysroot.as_deref());
+}
+
+fn set_arch_flags(builder: &mut Build) {
+    let arch = env::var("CARGO_CFG_TARGET_ARCH").unwrap();
+
+    match arch.as_str() {
+        "aarch64" => {
+            // -mgeneral-regs-only
+            builder.flag("-mgeneral-regs-only");
+        }
+        "riscv64" => {
+            // -march=rv64gc -mabi=lp64d -mcmodel=medany
+            builder.flag_if_supported("-march=rv64gc");
+            builder.flag_if_supported("-mabi=lp64d");
+            builder.flag_if_supported("-mcmodel=medany");
+        }
+        "x86_64" => {
+            builder.flag_if_supported("-mno-sse");
+        }
+        "loongarch64" => {
+            builder.flag_if_supported("-msoft-float");
+        }
+        _ => {
+            panic!("Unsupported architecture: {}", arch);
+        }
+    }
 }
 
 fn build_lib() -> Option<String> {
@@ -27,6 +55,15 @@ fn build_lib() -> Option<String> {
         .file(&c_src)
         .include(&include_dir)
         .include(&manifest_dir)
+        .flags([
+            "-std=gnu99",
+            "-fdata-sections",
+            "-ffunction-sections",
+            "-fPIC",
+            "-fno-builtin",
+            "-ffreestanding",
+            "-fno-omit-frame-pointer",
+        ])
         .warnings(true);
 
     let get_sys_root = |cc: &str| {
@@ -42,8 +79,9 @@ fn build_lib() -> Option<String> {
 
     let sys_root = if os == "none" {
         let musl_gcc = format!("{}-linux-musl-gcc", arch);
-        builder.flag_if_supported("-ffreestanding");
-        builder.flag_if_supported("-nostdlib");
+
+        set_arch_flags(&mut builder);
+
         builder.compiler(&musl_gcc);
 
         let sysroot = get_sys_root(&musl_gcc);

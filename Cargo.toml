@@ -11,5 +11,5 @@ homepage = "https://github.com/Godones/lwprintf-rs"
 
 
 [build-dependencies]
-cc = "1.2"
+cc = "1.2.51"
 bindgen = "0.72"
