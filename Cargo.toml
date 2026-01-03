@@ -1,6 +1,6 @@
 [package]
 name = "lwprintf-rs"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2024"
 authors = ["chen linfeng <chenlinfeng25@outlook.com>"]
 keywords = ["lwprintf", "printf", "no_std", "embedded", "os"]
@@ -8,7 +8,7 @@ description = "Rust bindings for the lightweight printf library lwprintf."
 license = "MIT"
 repository = "https://github.com/Godones/lwprintf-rs"
 homepage = "https://github.com/Godones/lwprintf-rs"
-
+documentation = "https://docs.rs/lwprintf-rs"
 
 [build-dependencies]
 cc = "1.2.51"
