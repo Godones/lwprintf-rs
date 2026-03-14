@@ -160,9 +160,9 @@ pub use sys_inner::lwprintf_vsnprintf_ex;
 pub unsafe extern "C" fn lwprintf_vprintf_ex_rust(
     lwobj: *mut lwprintf_t,
     fmt: *const core::ffi::c_char,
-    mut args: ...
+    args: ...
 ) -> core::ffi::c_int {
-    unsafe { sys_inner::lwprintf_vprintf_ex(lwobj, fmt, args.as_va_list()) }
+    unsafe { sys_inner::lwprintf_vprintf_ex(lwobj, fmt, args) }
 }
 
 /// Write formatted data from variable argument list to sized buffer.
@@ -181,9 +181,9 @@ pub unsafe extern "C" fn lwprintf_vsnprintf_ex_rust(
     s: *mut core::ffi::c_char,
     n: usize,
     fmt: *const core::ffi::c_char,
-    mut args: ...
+    args: ...
 ) -> core::ffi::c_int {
-    unsafe { sys_inner::lwprintf_vsnprintf_ex(lwobj, s, n, fmt, args.as_va_list()) }
+    unsafe { sys_inner::lwprintf_vsnprintf_ex(lwobj, s, n, fmt, args) }
 }
 
 /// Write formatted data from variable argument list to sized buffer.

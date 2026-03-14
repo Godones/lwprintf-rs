@@ -54,9 +54,9 @@ unsafe fn lwprintf_ex() {
     unsafe extern "C" fn call_lwprintf_vprintf_ex(
         lwobj: &mut LwprintfObj<StdOut>,
         format: *const i8,
-        mut args: ...
+        args: ...
     ) {
-        let args = args.as_va_list();
+        // let args = args.as_va_list();
         unsafe {
             lwprintf_vprintf_ex(lwobj.as_mut_ptr(), format, args);
         }
@@ -74,9 +74,9 @@ unsafe fn lwprintf_ex() {
         buf: *mut u8,
         n: usize,
         format: *const i8,
-        mut args: ...
+        args: ...
     ) -> i32 {
-        let args = args.as_va_list();
+        // let args = args.as_va_list();
         unsafe { lwprintf_vsnprintf_ex(lwobj.as_mut_ptr(), buf as *mut i8, n, format, args) }
     }
 
@@ -135,7 +135,8 @@ fn lwprintf() {
 
 fn other_test() {
     println!("--- other tests ---");
-    lwprintf_printf!("float test: %.5f\n\0".as_ptr() as *const i8, 3.14159f64);
+    // float has been disabled by default.
+    // lwprintf_printf!("float test: %.5f\n\0".as_ptr() as *const i8, 3.14159f64);
     lwprintf_printf!("hex test: 0x%08X\n\0".as_ptr() as *const i8, 0xDEADBEEFu32);
 }
 
